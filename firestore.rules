@@ -27,7 +27,7 @@ service cloud.firestore {
     match /users/{uid} {
       // The client reads its own profile after Firebase Auth sign-in. Admins
       // may list lecturers; no other user-directory access is exposed.
-      allow get: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow get: if signedIn() && (request.auth.uid == uid || isAdmin() || isLecturer());
       allow list: if isAdmin();
       allow create, update, delete: if isAdmin();
     }
