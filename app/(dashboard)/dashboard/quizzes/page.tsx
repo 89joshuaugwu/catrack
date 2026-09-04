@@ -1,34 +1,4 @@
 import AppShell from "@/components/shells/AppShell";
 import QuizCard from "@/components/molecules/QuizCard";
 import { demoUser, mockAttempts, mockCourses, mockQuizzes } from "@/lib/mock-data";
-
-export default function StudentQuizzesPage() {
-  const user = demoUser.student;
-  const myAttempts = mockAttempts.filter((a) => a.uid === user.uid);
-
-  return (
-    <AppShell role="student" userName={user.displayName}>
-      <h1 className="font-display text-2xl mb-6">Quizzes</h1>
-
-      {mockQuizzes.length === 0 ? (
-        <p className="text-text-secondary">No quizzes open right now</p>
-      ) : (
-        <div className="grid gap-4">
-          {mockQuizzes.map((quiz) => {
-            const course = mockCourses.find((c) => c.id === quiz.courseId);
-            const attempt = myAttempts.find((a) => a.quizId === quiz.id);
-            return (
-              <QuizCard
-                key={quiz.id}
-                quiz={quiz}
-                courseLabel={course ? `${course.code} — ${course.name}` : ""}
-                ownScore={attempt?.score}
-                maxScore={attempt ? quiz.maxScore : undefined}
-              />
-            );
-          })}
-        </div>
-      )}
-    </AppShell>
-  );
-}
+export default function StudentQuizzesPage(){const user=demoUser.student;const attempts=mockAttempts.filter(a=>a.uid===user.uid);const open=mockQuizzes.filter(q=>q.startWindow<=Date.now()&&q.endWindow>=Date.now()).length;return <AppShell role="student" userName={user.displayName}><div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Student workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Your quizzes</h1><p className="mt-2 text-text-secondary">Pick up where you left off and keep an eye on what is next.</p></div><div className="surface rounded-2xl px-4 py-3"><p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Available now</p><p className="mt-1 text-2xl font-bold font-tnum text-primary">{open} <span className="text-sm font-medium text-text-secondary">open</span></p></div></div><section className="surface rounded-2xl p-5 sm:p-6"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Assessment schedule</h2><span className="text-xs font-semibold text-text-secondary">{mockQuizzes.length} quizzes</span></div><div className="ledger">{mockQuizzes.map(quiz=>{const course=mockCourses.find(c=>c.id===quiz.courseId);const attempt=attempts.find(a=>a.quizId===quiz.id);return <QuizCard key={quiz.id} quiz={quiz} courseLabel={course?`${course.code} — ${course.name}`:""} ownScore={attempt?.score} maxScore={attempt?quiz.maxScore:undefined}/>;})}</div></section></AppShell>;}

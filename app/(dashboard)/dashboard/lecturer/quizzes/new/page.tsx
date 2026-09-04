@@ -13,7 +13,7 @@ export default function NewQuizPage() {
 
   return (
     <AppShell role="lecturer" userName={user.displayName}>
-      <h1 className="font-display text-2xl mb-6">New Quiz</h1>
+      <div className="mb-8"><p className="eyebrow">Quiz library</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Create a quiz</h1><p className="mt-2 text-text-secondary">Set the assessment window, CA value, and answers students will see.</p></div>
       <QuizBuilder
         courses={myCourses}
         onPublish={async () => {

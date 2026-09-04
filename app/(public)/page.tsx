@@ -1,66 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, BarChart3, CheckCircle2, Clock3, ShieldCheck } from "lucide-react";
 
 export default function LandingPage() {
-  return (
-    <div className="min-h-screen flex items-center">
-      <div className="max-w-5xl w-full mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <div className="flex items-center gap-2 mb-8">
-            <Image src="/logo.png" alt="" width={28} height={28} className="rounded" />
-            <span className="font-display font-semibold">CATrack</span>
-          </div>
-
-          <h1 className="font-display text-4xl leading-tight mb-4">
-            Every quiz score, added up before you leave the room.
-          </h1>
-          <p className="text-text-secondary text-lg mb-8 max-w-sm">
-            Lecturers set the quiz and the window. Students answer and see
-            their score instantly. The CA total updates itself, every time.
-          </p>
-
-          <Link
-            href="/auth/login"
-            className="min-h-12 px-6 inline-flex items-center rounded-lg bg-primary text-white font-medium hover:bg-primary-dark transition-colors"
-          >
-            Sign in
-          </Link>
-        </div>
-
-        <div className="hidden md:block">
-          <div className="border border-hairline rounded-lg bg-card p-6">
-            <p className="text-xs text-text-secondary mb-4">CSC301 — Data Structures &amp; Algorithms</p>
-
-            <div className="flex items-center gap-4 mb-6">
-              {["A", "B", "C", "D"].map((l) => (
-                <span
-                  key={l}
-                  className={`w-10 h-10 rounded-full border-2 grid place-items-center font-tnum text-sm font-semibold ${
-                    l === "B" ? "bg-primary border-primary text-white" : "border-hairline text-text-secondary"
-                  }`}
-                >
-                  {l}
-                </span>
-              ))}
-            </div>
-
-            <div className="ledger">
-              <div className="ledger-row flex items-center justify-between py-2.5 text-sm">
-                <span>Arrays &amp; Linked Lists</span>
-                <span className="font-tnum">4/5</span>
-              </div>
-              <div className="ledger-row flex items-center justify-between py-2.5 text-sm">
-                <span>Trees &amp; Graphs</span>
-                <span className="font-tnum">3/4</span>
-              </div>
-              <div className="flex items-center justify-between py-2.5 text-sm font-medium">
-                <span>Running CA total</span>
-                <span className="font-tnum">18.4 / 30</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <main className="min-h-screen overflow-hidden bg-[#f7f9fd]"><div className="absolute inset-x-0 top-0 h-[540px] bg-[radial-gradient(circle_at_75%_20%,rgba(147,197,253,.5),transparent_32%),radial-gradient(circle_at_28%_4%,rgba(219,234,254,.9),transparent_35%)]" /><div className="relative mx-auto max-w-7xl px-6 pb-14"><header className="flex h-24 items-center justify-between"><div className="flex items-center gap-3"><Image src="/logo.png" alt="CATrack" width={40} height={40} className="rounded-xl shadow-sm"/><span className="font-display text-xl font-bold">CATrack</span></div><Link href="/auth/login" className="rounded-xl px-4 py-2 text-sm font-semibold text-primary hover:bg-white/80">Sign in</Link></header><section className="grid items-center gap-12 py-12 lg:grid-cols-[1.05fr_.95fr] lg:py-20"><div><p className="eyebrow mb-5">ESUT assessment workspace</p><h1 className="max-w-2xl font-display text-5xl font-bold leading-[1.05] tracking-tight text-slate-950 sm:text-6xl">Keep every CA mark <span className="text-primary">clear, current, and credible.</span></h1><p className="mt-6 max-w-xl text-lg leading-8 text-text-secondary">A simpler, calmer way to run timed quizzes and track continuous assessment—from the first question to the final total.</p><div className="mt-8 flex flex-wrap gap-3"><Link href="/auth/login" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-primary-dark">Enter your workspace <ArrowRight size={17}/></Link><span className="inline-flex items-center gap-2 px-2 text-sm text-text-secondary"><ShieldCheck size={17} className="text-primary"/>Secure staff-provisioned access</span></div></div><div className="surface relative rounded-3xl p-5 shadow-2xl shadow-blue-900/10 sm:p-7"><div className="mb-7 flex items-center justify-between"><div><p className="eyebrow">Your progress</p><h2 className="mt-1 font-display text-xl font-bold">CSC 301 · Ada Obi</h2></div><div className="rounded-xl bg-lime-100 px-3 py-2 text-xs font-bold text-lime-800">On track</div></div><div className="rounded-2xl bg-slate-950 p-5 text-white"><div className="flex justify-between text-sm text-slate-300"><span>Continuous assessment</span><span className="font-tnum text-white">18.4 / 30</span></div><div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/15"><div className="h-full w-[61%] rounded-full bg-lime-400"/></div><p className="mt-3 text-xs text-slate-400">2 graded quizzes · 1 upcoming</p></div><div className="mt-5 grid gap-3"><div className="flex items-center gap-4 rounded-xl border border-border p-4"><span className="grid h-10 w-10 place-items-center rounded-lg bg-blue-50 text-primary"><Clock3 size={20}/></span><div className="flex-1"><p className="font-semibold">Trees & Graphs</p><p className="text-xs text-text-secondary">Opens now · 20 minutes</p></div><span className="text-sm font-bold text-primary">Begin</span></div><div className="flex items-center gap-4 px-4 text-sm"><CheckCircle2 size={18} className="text-lime-600"/><span className="flex-1">Arrays & Linked Lists</span><span className="font-tnum font-bold">5 / 5</span></div></div></div></section><section className="grid gap-4 border-t border-border pt-10 sm:grid-cols-3"><div className="flex gap-3"><Clock3 className="mt-0.5 text-primary"/><div><h3 className="font-bold">Focused quiz sessions</h3><p className="mt-1 text-sm leading-6 text-text-secondary">Clear timing, answer progress, and distraction-free questions.</p></div></div><div className="flex gap-3"><BarChart3 className="mt-0.5 text-primary"/><div><h3 className="font-bold">A total you can trust</h3><p className="mt-1 text-sm leading-6 text-text-secondary">Every quiz is weighted correctly against the course CA ceiling.</p></div></div><div className="flex gap-3"><ShieldCheck className="mt-0.5 text-primary"/><div><h3 className="font-bold">Built for the institution</h3><p className="mt-1 text-sm leading-6 text-text-secondary">Role-specific tools for students, lecturers, and registry staff.</p></div></div></section></div></main>;
 }

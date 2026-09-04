@@ -1,70 +1,9 @@
 "use client";
-
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, LockKeyhole } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
-
-export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      // Wire up to Firebase Auth (signInWithEmailAndPassword) once your
-      // project's config is in .env.local — see lib/firebase.ts.
-      await new Promise((r) => setTimeout(r, 400));
-      router.push("/dashboard");
-    } catch {
-      toast.error("Invalid email or password.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm grid gap-5">
-        <div className="flex flex-col items-center gap-3 mb-2">
-          <Image src="/logo.png" alt="CATrack" width={56} height={56} className="rounded-xl" />
-          <h1 className="font-display text-xl font-semibold">Sign in to CATrack</h1>
-          <p className="text-sm text-text-secondary text-center">
-            No public sign-up — accounts are provisioned by your admin or lecturer.
-          </p>
-        </div>
-
-        <label className="grid gap-1 text-sm">
-          Email
-          <input
-            type="email"
-            required
-            className="min-h-12 px-3 rounded-lg border border-border"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@esut.edu.ng"
-          />
-        </label>
-
-        <label className="grid gap-1 text-sm">
-          Password
-          <input
-            type="password"
-            required
-            className="min-h-12 px-3 rounded-lg border border-border"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </label>
-
-        <Button type="submit" disabled={loading}>
-          {loading ? "Signing in…" : "Sign in"}
-        </Button>
-      </form>
-    </div>
-  );
-}
+export default function LoginPage() { const router = useRouter(); const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [loading,setLoading]=useState(false); async function handleSubmit(e:React.FormEvent){e.preventDefault();setLoading(true);try{await new Promise(r=>setTimeout(r,400));router.push("/dashboard");}catch{toast.error("Invalid email or password.");}finally{setLoading(false);}} return <main className="grid min-h-screen bg-[#f7f9fd] lg:grid-cols-2"><section className="hidden bg-slate-950 p-12 text-white lg:flex lg:flex-col lg:justify-between"><div className="flex items-center gap-3"><Image src="/logo.png" alt="CATrack" width={38} height={38} className="rounded-xl"/><span className="font-display text-xl font-bold">CATrack</span></div><div><p className="eyebrow !text-blue-300">ESUT assessment workspace</p><h1 className="mt-4 max-w-md font-display text-5xl font-bold leading-tight">Assessment that stays in step with every student.</h1><p className="mt-5 max-w-sm text-lg leading-8 text-slate-400">Your quizzes, results, and CA totals in one calm, reliable workspace.</p></div><p className="flex items-center gap-2 text-sm text-slate-400"><LockKeyhole size={16}/> Access is provisioned by your department.</p></section><section className="flex items-center justify-center p-6 sm:p-10"><form onSubmit={handleSubmit} className="surface w-full max-w-md rounded-3xl p-7 sm:p-9"><Link href="/" className="mb-9 flex items-center gap-3 lg:hidden"><Image src="/logo.png" alt="CATrack" width={36} height={36} className="rounded-xl"/><span className="font-display text-lg font-bold">CATrack</span></Link><p className="eyebrow">Welcome back</p><h2 className="mt-2 font-display text-3xl font-bold tracking-tight">Sign in to your workspace</h2><p className="mt-2 text-sm leading-6 text-text-secondary">Use the email address assigned to you by your lecturer or administrator.</p><div className="mt-8 grid gap-5"><label className="grid gap-2 text-sm font-semibold">Institutional email<input type="email" required className="min-h-12 rounded-xl border border-border bg-white px-3 font-normal" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@esut.edu.ng"/></label><label className="grid gap-2 text-sm font-semibold">Password<input type="password" required className="min-h-12 rounded-xl border border-border bg-white px-3 font-normal" value={password} onChange={e=>setPassword(e.target.value)}/></label><Button type="submit" disabled={loading} className="mt-1 w-full">{loading ? "Signing in…" : <>Continue <ArrowRight size={17}/></>}</Button></div><p className="mt-6 text-center text-xs leading-5 text-text-secondary">No public sign-up. Contact your department if you need access.</p></form></section></main>; }

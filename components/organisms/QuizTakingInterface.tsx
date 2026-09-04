@@ -76,7 +76,7 @@ export default function QuizTakingInterface({
         </span>
       }
     >
-      <h1 className="font-display text-lg mb-4">{title}</h1>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><p className="eyebrow">Assessment in progress</p><h1 className="mt-1 font-display text-xl font-bold">{title}</h1></div><span className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-bold text-primary">{answered} / {questions.length} answered</span></div>
 
       <QuestionCard
         question={question}
@@ -86,7 +86,7 @@ export default function QuizTakingInterface({
         onSelect={(optionId) => setAnswers((a) => ({ ...a, [question.id]: optionId }))}
       />
 
-      <div className="flex items-center justify-between mt-6">
+      <div className="mt-6 flex items-center justify-between gap-3">
         <Button
           variant="secondary"
           disabled={current === 0}

@@ -21,16 +21,17 @@ export default function QuestionCard({
   onSelect,
 }: QuestionCardProps) {
   return (
-    <div className="flex gap-5">
-      <div className="shrink-0 w-12 text-right">
-        <span className="font-tnum text-4xl font-semibold text-text-secondary/40 leading-none">
+    <div className="surface rounded-2xl p-5 sm:p-7">
+      <div className="flex gap-4 sm:gap-5">
+      <div className="shrink-0 w-10 text-right">
+        <span className="font-tnum text-3xl font-semibold text-text-secondary/40 leading-none sm:text-4xl">
           {String(index + 1).padStart(2, "0")}
         </span>
       </div>
 
-      <div className="flex-1 min-w-0 pb-8 border-l border-hairline pl-5">
-        <p className="text-xs text-text-secondary mb-2">of {total} questions</p>
-        <h3 className="text-lg leading-snug mb-5">{question.text}</h3>
+      <div className="flex-1 min-w-0 border-l border-hairline pl-4 sm:pl-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary mb-2">Question {index + 1} of {total}</p>
+        <h3 className="text-lg font-medium leading-snug mb-6">{question.text}</h3>
 
         <div role="radiogroup" aria-label={question.text} className="grid gap-3">
           {question.options.map((option, oi) => {
@@ -39,7 +40,7 @@ export default function QuestionCard({
             return (
               <label
                 key={option.id}
-                className="flex items-center gap-4 cursor-pointer group"
+                className={`flex min-h-14 items-center gap-4 rounded-xl border p-3 cursor-pointer group transition-colors ${checked ? "border-primary bg-blue-50/70" : "border-border hover:border-blue-200 hover:bg-slate-50"}`}
               >
                 <input
                   type="radio"
@@ -54,7 +55,7 @@ export default function QuestionCard({
                   className={`shrink-0 w-11 h-11 rounded-full border-2 grid place-items-center font-tnum font-semibold transition-colors ${
                     checked
                       ? "bg-primary border-primary text-white"
-                      : "border-hairline text-text-secondary group-hover:border-primary"
+                      : "border-hairline bg-white text-text-secondary group-hover:border-primary"
                   }`}
                 >
                   {letter}
@@ -64,7 +65,7 @@ export default function QuestionCard({
             );
           })}
         </div>
-      </div>
+      </div></div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default function CAOverviewPage() {
 
   return (
     <AppShell role="lecturer" userName={user.displayName}>
-      <h1 className="font-display text-2xl mb-6">CA Overview</h1>
+      <div className="mb-8"><p className="eyebrow">Lecturer workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Class progress</h1><p className="mt-2 text-text-secondary">Review running CA totals and export a clean gradesheet for each course.</p></div>
 
       <div className="grid gap-6">
         {myCourses.map((course) => {

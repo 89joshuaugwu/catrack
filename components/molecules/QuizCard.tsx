@@ -1,48 +1,6 @@
 import Link from "next/link";
+import { ArrowRight, CalendarDays, Clock3, LockKeyhole } from "lucide-react";
 import type { Quiz } from "@/types";
-
-interface QuizCardProps {
-  quiz: Pick<Quiz, "id" | "title" | "startWindow" | "endWindow" | "durationMinutes">;
-  courseLabel: string;
-  ownScore?: number;
-  maxScore?: number;
-}
-
-function status(startWindow: number, endWindow: number) {
-  const now = Date.now();
-  if (now < startWindow) return { label: "Upcoming", dot: "bg-text-secondary" };
-  if (now > endWindow) return { label: "Closed", dot: "bg-error" };
-  return { label: "Open", dot: "bg-accent" };
-}
-
-// A ledger row, not a card-in-a-list — status reads as a mark on a
-// register, not a colored pill.
-export default function QuizCard({ quiz, courseLabel, ownScore, maxScore }: QuizCardProps) {
-  const s = status(quiz.startWindow, quiz.endWindow);
-  const taken = ownScore !== undefined && maxScore !== undefined;
-  const isOpen = s.label === "Open";
-
-  const body = (
-    <div className="ledger-row flex items-center gap-4 py-4 group">
-      <span className={`shrink-0 w-2 h-2 rounded-full ${s.dot}`} aria-hidden />
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-text-secondary">{courseLabel}</p>
-        <h3 className={`font-medium ${isOpen && !taken ? "group-hover:text-primary" : ""}`}>
-          {quiz.title}
-        </h3>
-      </div>
-      <span className="text-sm text-text-secondary font-tnum">{quiz.durationMinutes}′</span>
-      <span className="text-sm text-text-secondary w-16 text-right">{s.label}</span>
-      {taken && (
-        <span className="font-tnum text-sm font-semibold w-14 text-right">
-          {ownScore}/{maxScore}
-        </span>
-      )}
-    </div>
-  );
-
-  if (isOpen && !taken) {
-    return <Link href={`/dashboard/quizzes/${quiz.id}/take`}>{body}</Link>;
-  }
-  return body;
-}
+interface QuizCardProps { quiz: Pick<Quiz,"id"|"title"|"startWindow"|"endWindow"|"durationMinutes">; courseLabel:string; ownScore?:number; maxScore?:number; }
+function status(start:number,end:number){const now=Date.now();if(now<start)return {label:"Upcoming",className:"bg-slate-100 text-slate-600",icon:CalendarDays};if(now>end)return {label:"Closed",className:"bg-red-50 text-red-700",icon:LockKeyhole};return {label:"Open now",className:"bg-lime-50 text-lime-700",icon:Clock3};}
+export default function QuizCard({quiz,courseLabel,ownScore,maxScore}:QuizCardProps){const s=status(quiz.startWindow,quiz.endWindow);const taken=ownScore!==undefined&&maxScore!==undefined;const open=s.label==="Open now";const Icon=s.icon;const body=<div className={`ledger-row group flex items-center gap-3 py-4 sm:gap-5 ${open&&!taken?"cursor-pointer":""}`}><span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${s.className}`}><Icon size={18}/></span><div className="min-w-0 flex-1"><p className="truncate text-xs text-text-secondary">{courseLabel}</p><h3 className="mt-0.5 font-semibold transition-colors group-hover:text-primary">{quiz.title}</h3><p className="mt-1 flex items-center gap-1 text-xs text-text-secondary"><Clock3 size={13}/>{quiz.durationMinutes} minutes</p></div><div className="hidden text-right sm:block"><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${s.className}`}>{s.label}</span>{taken&&<p className="mt-2 font-tnum text-sm font-bold">{ownScore}/{maxScore}</p>}</div>{open&&!taken&&<ArrowRight size={18} className="shrink-0 text-text-secondary transition group-hover:translate-x-0.5 group-hover:text-primary"/>}{taken&&<div className="sm:hidden font-tnum text-sm font-bold">{ownScore}/{maxScore}</div>}</div>;return open&&!taken?<Link href={`/dashboard/quizzes/${quiz.id}/take`}>{body}</Link>:body;}

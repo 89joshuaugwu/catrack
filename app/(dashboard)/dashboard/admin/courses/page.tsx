@@ -14,10 +14,10 @@ export default function AdminCoursesPage() {
 
   return (
     <AppShell role="admin" userName={demoUser.admin.displayName}>
-      <h1 className="font-display text-2xl mb-6">Courses</h1>
+      <div className="mb-8"><p className="eyebrow">Registry workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Course catalogue</h1><p className="mt-2 text-text-secondary">Set the CA ceiling and keep course records ready for assessment.</p></div>
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-8">
-        <div className="ledger">
+        <div className="surface rounded-2xl p-5 sm:p-6"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Active courses</h2><span className="text-xs font-bold text-text-secondary">{mockCourses.length} courses</span></div><div className="ledger">
           {mockCourses.map((c) => (
             <div key={c.id} className="ledger-row flex items-center justify-between py-4">
               <div>
@@ -27,10 +27,10 @@ export default function AdminCoursesPage() {
               <span className="text-sm text-text-secondary font-tnum">CA / {c.caCeiling}</span>
             </div>
           ))}
-        </div>
+        </div></div>
 
         <Card className="grid gap-3 h-fit">
-          <p className="font-medium">Add course</p>
+          <div><p className="font-display text-lg font-bold">Add a course</p><p className="mt-1 text-sm text-text-secondary">Make it available for assessment setup.</p></div>
           <input
             className="min-h-12 px-3 rounded-lg border border-border"
             placeholder="Course code (e.g. CSC301)"

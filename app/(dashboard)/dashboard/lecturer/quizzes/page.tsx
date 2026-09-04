@@ -1,37 +1,6 @@
 import Link from "next/link";
+import { ArrowRight, Plus } from "lucide-react";
 import AppShell from "@/components/shells/AppShell";
 import Button from "@/components/ui/Button";
 import { demoUser, mockCourses, mockQuizzes } from "@/lib/mock-data";
-
-export default function LecturerQuizzesPage() {
-  const user = demoUser.lecturer;
-  const myQuizzes = mockQuizzes.filter((q) => q.createdBy === user.uid);
-
-  return (
-    <AppShell role="lecturer" userName={user.displayName}>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl">My Quizzes</h1>
-        <Link href="/dashboard/lecturer/quizzes/new">
-          <Button>+ New quiz</Button>
-        </Link>
-      </div>
-
-      <div className="ledger">
-        {myQuizzes.map((quiz) => {
-          const course = mockCourses.find((c) => c.id === quiz.courseId);
-          return (
-            <Link key={quiz.id} href={`/dashboard/lecturer/quizzes/${quiz.id}/results`}>
-              <div className="ledger-row flex items-center justify-between py-4 group">
-                <div>
-                  <p className="text-xs text-text-secondary">{course?.code}</p>
-                  <p className="font-medium group-hover:text-primary">{quiz.title}</p>
-                </div>
-                <span className="text-sm text-text-secondary capitalize">{quiz.status}</span>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-    </AppShell>
-  );
-}
+export default function LecturerQuizzesPage(){const user=demoUser.lecturer;const quizzes=mockQuizzes.filter(q=>q.createdBy===user.uid);return <AppShell role="lecturer" userName={user.displayName}><div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Lecturer workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Quiz library</h1><p className="mt-2 text-text-secondary">Create, monitor, and review your course assessments.</p></div><Link href="/dashboard/lecturer/quizzes/new"><Button><Plus size={17}/> New quiz</Button></Link></div><section className="surface rounded-2xl p-5 sm:p-6"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Recent assessments</h2><span className="text-xs font-semibold text-text-secondary">{quizzes.length} total</span></div><div className="ledger">{quizzes.map(quiz=>{const course=mockCourses.find(c=>c.id===quiz.courseId);return <Link key={quiz.id} href={`/dashboard/lecturer/quizzes/${quiz.id}/results`} className="ledger-row group flex items-center gap-4 py-4"><div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-sm font-bold text-primary">{course?.code.slice(-3)}</div><div className="min-w-0 flex-1"><p className="text-xs text-text-secondary">{course?.code} · {quiz.durationMinutes} min · {quiz.questions.length} questions</p><p className="mt-0.5 font-semibold group-hover:text-primary">{quiz.title}</p></div><span className="hidden rounded-full bg-lime-50 px-2.5 py-1 text-xs font-bold capitalize text-lime-700 sm:inline">{quiz.status}</span><ArrowRight size={18} className="text-text-secondary group-hover:text-primary"/></Link>;})}</div></section></AppShell>;}

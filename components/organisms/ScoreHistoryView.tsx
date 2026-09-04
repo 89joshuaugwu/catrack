@@ -1,69 +1,10 @@
 "use client";
-
+import { Download } from "lucide-react";
 import CAProgressBar from "@/components/molecules/CAProgressBar";
 import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import { computeCAScore } from "@/lib/ca-scoring";
 import { exportStudentCAReport, toCASummaryRows } from "@/lib/export";
 import type { Attempt, Course, Quiz } from "@/types";
-
-interface ScoreHistoryViewProps {
-  studentName: string;
-  course: Course;
-  quizzes: Pick<Quiz, "id" | "title" | "maxScore" | "weight">[];
-  attempts: Pick<Attempt, "quizId" | "score" | "submittedAt">[];
-}
-
-export default function ScoreHistoryView({
-  studentName,
-  course,
-  quizzes,
-  attempts,
-}: ScoreHistoryViewProps) {
-  const runningTotal = computeCAScore(attempts, quizzes, course.caCeiling);
-  const rows = toCASummaryRows(attempts, quizzes);
-
-  return (
-    <div className="grid gap-5 pb-8 border-b border-hairline last:border-0">
-      <CAProgressBar
-        courseName={course.name}
-        courseCode={course.code}
-        current={runningTotal}
-        ceiling={course.caCeiling}
-      />
-
-      {attempts.length === 0 ? (
-        <p className="text-text-secondary text-sm">
-          Take your first quiz to see your CA progress
-        </p>
-      ) : (
-        <div className="ledger">
-          {rows.map((r) => (
-            <div key={r.quizTitle} className="ledger-row flex items-center justify-between text-sm py-2.5">
-              <span>{r.quizTitle}</span>
-              <span className="font-tnum">
-                {r.score}/{r.maxScore} <span className="text-text-secondary">+{r.normalized.toFixed(1)} CA</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <Button
-        variant="secondary"
-        className="justify-self-start"
-        onClick={() =>
-          exportStudentCAReport({
-            studentName,
-            courseName: course.name,
-            courseCode: course.code,
-            caCeiling: course.caCeiling,
-            runningTotal,
-            rows,
-          })
-        }
-      >
-        Download PDF
-      </Button>
-    </div>
-  );
-}
+interface Props {studentName:string;course:Course;quizzes:Pick<Quiz,"id"|"title"|"maxScore"|"weight">[];attempts:Pick<Attempt,"quizId"|"score"|"submittedAt">[];}
+export default function ScoreHistoryView({studentName,course,quizzes,attempts}:Props){const runningTotal=computeCAScore(attempts,quizzes,course.caCeiling);const rows=toCASummaryRows(attempts,quizzes);return <Card><CAProgressBar courseName={course.name} courseCode={course.code} current={runningTotal} ceiling={course.caCeiling}/><div className="mt-6 border-t border-border pt-5">{attempts.length===0?<div className="rounded-xl bg-slate-50 p-4 text-sm text-text-secondary">No submitted quizzes yet. Take your first quiz to start building this total.</div>:<div className="ledger">{rows.map(r=><div key={r.quizTitle} className="ledger-row flex items-center justify-between gap-4 py-3 text-sm"><span className="font-medium">{r.quizTitle}</span><span className="shrink-0 font-tnum"><b>{r.score}/{r.maxScore}</b><span className="ml-2 text-text-secondary">+{r.normalized.toFixed(1)} CA</span></span></div>)}</div>}</div><Button variant="secondary" className="mt-5" onClick={()=>exportStudentCAReport({studentName,courseName:course.name,courseCode:course.code,caCeiling:course.caCeiling,runningTotal,rows})}><Download size={16}/> Download statement</Button></Card>;}

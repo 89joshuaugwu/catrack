@@ -80,7 +80,7 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
 
   return (
     <div className="grid gap-6">
-      <Card className="grid gap-4">
+      <Card className="grid gap-5"><div><p className="eyebrow">Assessment details</p><h2 className="mt-1 font-display text-lg font-bold">Set up the quiz</h2></div>
         <div className="grid sm:grid-cols-2 gap-4">
           <label className="grid gap-1 text-sm">
             Quiz title
@@ -153,9 +153,9 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
       </Card>
 
       {questions.map((q, qi) => (
-        <Card key={q.id} className="grid gap-3">
+        <Card key={q.id} className="grid gap-4">
           <div className="flex items-center justify-between">
-            <p className="font-medium">Question {qi + 1}</p>
+            <div><p className="eyebrow">Question {qi + 1}</p><p className="mt-1 font-semibold">Multiple-choice answer</p></div>
             {questions.length > 1 && (
               <button
                 className="text-sm text-error"

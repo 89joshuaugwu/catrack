@@ -19,8 +19,8 @@ export default async function QuizResultsPage({ params }: { params: Promise<{ id
 
   return (
     <AppShell role="lecturer" userName={demoUser.lecturer.displayName}>
-      <h1 className="font-display text-2xl mb-6">{quiz.title}</h1>
-      <ClassResultsView quizTitle={quiz.title} maxScore={quiz.maxScore} results={results} />
+      <div className="mb-8"><p className="eyebrow">Assessment results</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">{quiz.title}</h1><p className="mt-2 text-text-secondary">{quiz.questions.length} questions · {quiz.durationMinutes} minutes · {quiz.weight} CA marks</p></div>
+      <div className="surface rounded-2xl p-5 sm:p-6"><ClassResultsView quizTitle={quiz.title} maxScore={quiz.maxScore} results={results} /></div>
     </AppShell>
   );
 }
