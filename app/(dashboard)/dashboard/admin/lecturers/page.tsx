@@ -1,60 +1,12 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import toast from "react-hot-toast";
 import AppShell from "@/components/shells/AppShell";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import { demoUser } from "@/lib/mock-data";
-
-const lecturers = [{ uid: "lec1", name: "Dr. Uzo Eze", email: "u.eze@esut.edu.ng" }];
-
-export default function AdminLecturersPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-
-  return (
-    <AppShell role="admin" userName={demoUser.admin.displayName}>
-      <div className="mb-8"><p className="eyebrow">Registry workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Lecturer accounts</h1><p className="mt-2 text-text-secondary">Provision access for staff who create and review assessments.</p></div>
-
-      <div className="grid lg:grid-cols-[1fr_320px] gap-8">
-        <div className="surface rounded-2xl p-5 sm:p-6"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Current lecturers</h2><span className="text-xs font-bold text-text-secondary">{lecturers.length} active</span></div><div className="ledger">
-          {lecturers.map((l) => (
-            <div key={l.uid} className="ledger-row flex items-center justify-between py-4">
-              <div>
-                <p className="font-medium">{l.name}</p>
-                <p className="text-sm text-text-secondary">{l.email}</p>
-              </div>
-            </div>
-          ))}
-        </div></div>
-
-        <Card className="grid gap-3 h-fit">
-          <div><p className="font-display text-lg font-bold">Provision access</p><p className="mt-1 text-sm text-text-secondary">Create a staff account for the assessment portal.</p></div>
-          <input
-            className="min-h-12 px-3 rounded-lg border border-border"
-            placeholder="Full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            type="email"
-            className="min-h-12 px-3 rounded-lg border border-border"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <Button
-            onClick={() => {
-              toast.success("Lecturer invited — sample data only in this demo build.");
-              setName("");
-              setEmail("");
-            }}
-          >
-            Create account
-          </Button>
-        </Card>
-      </div>
-    </AppShell>
-  );
-}
+import Spinner from "@/components/ui/Spinner";
+import { db } from "@/lib/firebase";
+import { useCurrentUser } from "@/lib/client-data";
+import type { AppUser } from "@/types";
+export default function AdminLecturersPage(){const {user,loading}=useCurrentUser();const [lecturers,setLecturers]=useState<AppUser[]>([]);const [name,setName]=useState("");const [email,setEmail]=useState("");const load=async()=>setLecturers((await getDocs(query(collection(db,"users"),where("role","==","lecturer")))).docs.map(d=>d.data() as AppUser));useEffect(()=>{if(user?.role==="admin")load().catch(console.error);},[user]);if(loading||!user)return <div className="grid min-h-screen place-items-center"><Spinner/></div>;return <AppShell role={user.role} userName={user.displayName}><div className="mb-8"><p className="eyebrow">Registry workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Lecturer accounts</h1><p className="mt-2 text-text-secondary">Provision access for staff who create and review assessments.</p></div><div className="grid gap-8 lg:grid-cols-[1fr_320px]"><div className="surface rounded-2xl p-5 sm:p-6"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Current lecturers</h2><span className="text-xs font-bold text-text-secondary">{lecturers.length} active</span></div><div className="ledger">{lecturers.map(l=><div key={l.uid} className="ledger-row py-4"><p className="font-medium">{l.displayName}</p><p className="text-sm text-text-secondary">{l.email}</p></div>)}</div></div><Card className="grid h-fit gap-3"><div><p className="font-display text-lg font-bold">Provision access</p><p className="mt-1 text-sm text-text-secondary">Creates a Firebase account with a temporary password.</p></div><input className="min-h-12 rounded-lg border border-border px-3" placeholder="Full name" value={name} onChange={e=>setName(e.target.value)}/><input type="email" className="min-h-12 rounded-lg border border-border px-3" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}/><Button onClick={async()=>{try{const token=await user.firebaseUser.getIdToken();const response=await fetch("/api/admin/lecturers",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({displayName:name,email})});const data=await response.json();if(!response.ok)throw new Error(data.error);toast.success(`Account created. Temporary password: ${data.temporaryPassword}`);setName("");setEmail("");await load();}catch(error){toast.error(error instanceof Error?error.message:"Could not create lecturer.");}}}>Create account</Button></Card></div></AppShell>;}

@@ -1,13 +1,6 @@
-import { redirect } from "next/navigation";
-import { demoUser } from "@/lib/mock-data";
-
-// Role-adaptive home: redirect to the right landing route for the signed-in
-// user's role. Swap `demoUser.student` for the authenticated user's role
-// once Firebase Auth is wired up.
-export default function DashboardHome() {
-  const role = demoUser.student.role;
-
-  if (role === "student") redirect("/dashboard/quizzes");
-  if (role === "lecturer") redirect("/dashboard/lecturer/quizzes");
-  redirect("/dashboard/admin/courses");
-}
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Spinner from "@/components/ui/Spinner";
+import { useCurrentUser, rolePath } from "@/lib/client-data";
+export default function DashboardHome(){const {user,loading}=useCurrentUser();const router=useRouter();useEffect(()=>{if(!loading)router.replace(user?rolePath(user.role):"/auth/login");},[loading,user,router]);return <div className="grid min-h-screen place-items-center"><Spinner/></div>;}

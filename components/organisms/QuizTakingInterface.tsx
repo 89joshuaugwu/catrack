@@ -8,6 +8,7 @@ import QuizTimer from "@/components/ui/QuizTimer";
 import QuizShell from "@/components/shells/QuizShell";
 import Button from "@/components/ui/Button";
 import type { Answer, Question } from "@/types";
+import { auth } from "@/lib/firebase";
 
 interface QuizTakingInterfaceProps {
   quizId: string;
@@ -40,9 +41,10 @@ export default function QuizTakingInterface({
         selectedOptionId,
       }));
 
+      const token = await auth.currentUser?.getIdToken();
       const res = await fetch(`/api/quizzes/${quizId}/submit`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ answers: payload }),
       });
 
