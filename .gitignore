@@ -1,0 +1,9 @@
+node_modules
+.next
+.env.local
+.env
+*.log
+.DS_Store
+
+
+catrack-c123f-firebase-adminsdk.json

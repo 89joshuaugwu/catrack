@@ -1,0 +1,110 @@
+"use client";
+
+import { useState } from "react";
+import toast from "react-hot-toast";
+import QuestionCard from "@/components/molecules/QuestionCard";
+import ScoreReveal from "@/components/molecules/ScoreReveal";
+import QuizTimer from "@/components/ui/QuizTimer";
+import QuizShell from "@/components/shells/QuizShell";
+import Button from "@/components/ui/Button";
+import type { Answer, Question } from "@/types";
+
+interface QuizTakingInterfaceProps {
+  quizId: string;
+  title: string;
+  questions: Question[];
+  startedAt: number;
+  durationMinutes: number;
+}
+
+export default function QuizTakingInterface({
+  quizId,
+  title,
+  questions,
+  startedAt,
+  durationMinutes,
+}: QuizTakingInterfaceProps) {
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ score: number } | null>(null);
+
+  const question = questions[current];
+  const answered = Object.keys(answers).length;
+
+  async function submit() {
+    setSubmitting(true);
+    try {
+      const payload: Answer[] = Object.entries(answers).map(([questionId, selectedOptionId]) => ({
+        questionId,
+        selectedOptionId,
+      }));
+
+      const res = await fetch(`/api/quizzes/${quizId}/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: payload }),
+      });
+
+      if (!res.ok) throw new Error((await res.json()).error ?? "Submission failed");
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Submission failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (result) {
+    return (
+      <div className="max-w-md mx-auto text-center">
+        <h1 className="font-display text-xl mb-2">{title} — Submitted</h1>
+        <ScoreReveal score={result.score} maxScore={questions.length} />
+      </div>
+    );
+  }
+
+  return (
+    <QuizShell
+      timerSlot={
+        <QuizTimer startedAt={startedAt} durationMinutes={durationMinutes} onExpire={submit} />
+      }
+      progressSlot={
+        <span>
+          Question {current + 1} of {questions.length} · {answered} answered
+        </span>
+      }
+    >
+      <h1 className="font-display text-lg mb-4">{title}</h1>
+
+      <QuestionCard
+        question={question}
+        index={current}
+        total={questions.length}
+        selectedOptionId={answers[question.id]}
+        onSelect={(optionId) => setAnswers((a) => ({ ...a, [question.id]: optionId }))}
+      />
+
+      <div className="flex items-center justify-between mt-6">
+        <Button
+          variant="secondary"
+          disabled={current === 0}
+          onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+        >
+          Previous
+        </Button>
+
+        {current < questions.length - 1 ? (
+          <Button onClick={() => setCurrent((c) => Math.min(questions.length - 1, c + 1))}>
+            Next
+          </Button>
+        ) : (
+          <Button onClick={submit} disabled={submitting}>
+            {submitting ? "Submitting…" : "Submit Quiz"}
+          </Button>
+        )}
+      </div>
+    </QuizShell>
+  );
+}

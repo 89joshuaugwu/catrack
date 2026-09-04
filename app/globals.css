@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-accent: #84cc16;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-bg: #f8fafc;
+  --color-card: #ffffff;
+  --color-border: #e2e8f0;
+  --color-hairline: #cbd5e1;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+.font-tnum {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ledger: hairline-divided rows, replaces stacked identical cards for lists */
+.ledger {
+  border-top: 1px solid var(--color-hairline);
+}
+.ledger-row {
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+/* OMR-style answer bubble — the one deliberate visual signature.
+   Evokes the WAEC/JAMB bubble sheet, not a generic radio button. */
+.omr-bubble {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  border: 2px solid var(--color-hairline);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  background: var(--color-card);
+  transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease;
+}
+.omr-bubble:hover {
+  border-color: var(--color-primary);
+}
+.omr-bubble:checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+.omr-bubble:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

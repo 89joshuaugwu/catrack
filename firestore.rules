@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function getRole() {
+      return request.auth != null
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    match /courses/{courseId} {
+      allow read: if request.auth != null;
+      allow write: if getRole() == "admin";
+    }
+
+    match /quizzes/{quizId} {
+      allow read: if request.auth != null;
+      allow write: if getRole() in ["lecturer", "admin"];
+
+      match /attempts/{uid} {
+        allow read: if request.auth != null && (
+          request.auth.uid == uid || getRole() in ["lecturer", "admin"]
+        );
+        // Writes only ever happen server-side via the Admin SDK in
+        // app/api/quizzes/[id]/{start,submit} — never directly from the
+        // client — so client writes are blocked outright here.
+        allow write: if false;
+      }
+    }
+
+    match /users/{uid} {
+      allow read: if request.auth != null;
+      allow write: if getRole() == "admin";
+    }
+  }
+}
