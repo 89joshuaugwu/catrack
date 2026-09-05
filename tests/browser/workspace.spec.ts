@@ -135,3 +135,19 @@ test("resuming restores saved answer and expiry submits only once",async({page})
   await expect(page.getByRole("heading",{name:/Submitted$/})).toBeVisible({timeout:8000});
   expect(submissions).toBe(1);
 });
+
+test("failed autosave can be retried without losing the selected answer",async({page})=>{
+  await signIn(page,"student");
+  let fail=true;
+  await page.route("**/api/quizzes/seeded-quiz/save",r=>r.fulfill(
+    fail ? {status:503,json:{error:"Try again"}} : {json:{saved:true}}
+  ));
+  await page.getByRole("link",{name:"Review & start"}).click();
+  await page.getByRole("button",{name:"Begin / resume / view result"}).click();
+  await page.getByText("First",{exact:true}).click();
+  await expect(page.getByRole("button",{name:"Retry saving answers"})).toBeVisible();
+  fail=false;
+  await page.getByRole("button",{name:"Retry saving answers"}).click();
+  await expect(page.getByText("Answers saved")).toBeVisible();
+  await expect(page.getByRole("radio",{name:"First",exact:true})).toBeChecked();
+});
