@@ -4,7 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import type { Question, QuestionOption } from "@/types";
+import type { Question, QuestionOption, Quiz } from "@/types";
 
 function newQuestion(): Question {
   const qid = crypto.randomUUID();
@@ -16,6 +16,7 @@ function newQuestion(): Question {
 }
 
 interface QuizBuilderProps {
+  initialQuiz?: Quiz;
   courses: { id: string; name: string; code: string }[];
   onPublish: (payload: {
     title: string;
@@ -26,17 +27,20 @@ interface QuizBuilderProps {
     durationMinutes: number;
     startWindow: number;
     endWindow: number;
-  }) => Promise<void> | void;
+    allowReview: boolean;
+  }, status: "draft" | "published") => Promise<void> | void;
 }
 
-export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
-  const [title, setTitle] = useState("");
-  const [courseId, setCourseId] = useState(courses[0]?.id ?? "");
-  const [questions, setQuestions] = useState<Question[]>([newQuestion()]);
-  const [weight, setWeight] = useState(10);
-  const [durationMinutes, setDurationMinutes] = useState(15);
-  const [startWindow, setStartWindow] = useState("");
-  const [endWindow, setEndWindow] = useState("");
+export default function QuizBuilder({ courses, onPublish, initialQuiz }: QuizBuilderProps) {
+  const [title, setTitle] = useState(initialQuiz?.title ?? "");
+  const [courseId, setCourseId] = useState(initialQuiz?.courseId ?? courses[0]?.id ?? "");
+  const [questions, setQuestions] = useState<Question[]>(() => initialQuiz?.questions ?? [newQuestion()]);
+  const [weight, setWeight] = useState(initialQuiz?.weight ?? 10);
+  const [durationMinutes, setDurationMinutes] = useState(initialQuiz?.durationMinutes ?? 15);
+  const localDate = (n?: number) => n ? new Date(n - new Date(n).getTimezoneOffset()*60000).toISOString().slice(0,16) : "";
+  const [startWindow, setStartWindow] = useState(localDate(initialQuiz?.startWindow));
+  const [endWindow, setEndWindow] = useState(localDate(initialQuiz?.endWindow));
+  const [allowReview,setAllowReview]=useState(initialQuiz?.allowReview ?? false);
   const [publishing, setPublishing] = useState(false);
 
   function updateQuestion(id: string, patch: Partial<Question>) {
@@ -53,7 +57,7 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
     );
   }
 
-  async function handlePublish() {
+  async function handlePublish(status: "draft" | "published") {
     if (!title || !courseId || !startWindow || !endWindow) {
       toast.error("Fill in title, course, and the quiz window.");
       return;
@@ -69,8 +73,8 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
         durationMinutes,
         startWindow: new Date(startWindow).getTime(),
         endWindow: new Date(endWindow).getTime(),
-      });
-      toast.success("Quiz published.");
+        allowReview,
+      }, status);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not publish quiz.");
     } finally {
@@ -152,6 +156,7 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
         </div>
       </Card>
 
+      <label className="flex items-center gap-3"><input type="checkbox" checked={allowReview} onChange={e=>setAllowReview(e.target.checked)}/>Allow answer review after the quiz window closes</label>
       {questions.map((q, qi) => (
         <Card key={q.id} className="grid gap-4">
           <div className="flex items-center justify-between">
@@ -167,6 +172,7 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
           </div>
           <input
             className="min-h-12 px-3 rounded-lg border border-border"
+            aria-label={`Question ${qi + 1} text`}
             placeholder="Question text"
             value={q.text}
             onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
@@ -181,12 +187,14 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
               >
                 <input
                   type="radio"
+                  aria-label={`Mark option ${String.fromCharCode(65 + oi)} as correct`}
                   name={`correct-${q.id}`}
                   checked={q.correctOptionId === o.id}
                   onChange={() => updateQuestion(q.id, { correctOptionId: o.id })}
                 />
                 <input
                   className="min-h-12 flex-1 bg-transparent outline-none"
+                  aria-label={`Question ${qi + 1}, option ${String.fromCharCode(65 + oi)}`}
                   placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                   value={o.text}
                   onChange={(e) => updateOption(q.id, o.id, e.target.value)}
@@ -201,9 +209,9 @@ export default function QuizBuilder({ courses, onPublish }: QuizBuilderProps) {
         <Button variant="secondary" onClick={() => setQuestions((qs) => [...qs, newQuestion()])}>
           + Add question
         </Button>
-        <Button onClick={handlePublish} disabled={publishing}>
+        <div className="flex gap-3"><Button variant="secondary" onClick={() => handlePublish("draft")} disabled={publishing}>Save draft</Button><Button onClick={() => handlePublish("published")} disabled={publishing}>
           {publishing ? "Publishing…" : "Publish quiz"}
-        </Button>
+        </Button></div>
       </div>
     </div>
   );

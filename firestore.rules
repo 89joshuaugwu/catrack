@@ -1,76 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function role() {
-      return signedIn()
-        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
-        : null;
-    }
-
-    function isAdmin() {
-      return role() == "admin";
-    }
-
-    function isLecturer() {
-      return role() == "lecturer";
-    }
-
-    function ownsQuiz(quizId) {
-      return signedIn() &&
-        get(/databases/$(database)/documents/quizzes/$(quizId)).data.createdBy == request.auth.uid;
-    }
-
+    // All assessments and management use authenticated server routes.
+    // This also protects legacy quiz documents containing correctOptionId.
     match /users/{uid} {
-      // The client reads its own profile after Firebase Auth sign-in. Admins
-      // may list lecturers; no other user-directory access is exposed.
-      allow get: if signedIn() && (request.auth.uid == uid || isAdmin() || isLecturer());
-      allow list: if isAdmin();
-      allow create, update, delete: if isAdmin();
+      allow get: if request.auth != null && request.auth.uid == uid;
+      allow list, create, update, delete: if false;
     }
-
-    match /courses/{courseId} {
-      // Student screens currently show a course label for every published quiz.
-      allow read: if signedIn();
-      allow create, update, delete: if isAdmin();
-    }
-
-    match /quizzes/{quizId} {
-      // Student screens currently query the full quiz collection. Lecturers
-      // are constrained to their own quiz documents; admins retain full control.
-      allow get, list: if signedIn() && (
-        isAdmin() ||
-        (isLecturer() && resource.data.createdBy == request.auth.uid) ||
-        role() == "student"
-      );
-
-      allow create: if isAdmin() || (
-        isLecturer() &&
-        request.resource.data.createdBy == request.auth.uid
-      );
-      allow update: if isAdmin() || (
-        isLecturer() &&
-        resource.data.createdBy == request.auth.uid &&
-        request.resource.data.createdBy == request.auth.uid
-      );
-      allow delete: if isAdmin() || (
-        isLecturer() && resource.data.createdBy == request.auth.uid
-      );
-
-      match /attempts/{uid} {
-        // Attempt mutations go through the Admin SDK API routes only. The
-        // Admin SDK bypasses rules; browser-side writes remain blocked.
-        allow get: if signedIn() && (
-          request.auth.uid == uid || isAdmin() || (isLecturer() && ownsQuiz(quizId))
-        );
-        allow list: if signedIn() && (
-          isAdmin() || (isLecturer() && ownsQuiz(quizId))
-        );
-        allow write: if false;
-      }
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

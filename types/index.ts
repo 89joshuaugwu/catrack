@@ -5,6 +5,7 @@ export interface AppUser {
   email: string;
   displayName: string;
   role: Role;
+  disabled?: boolean;
 }
 
 export interface Course {
@@ -27,6 +28,16 @@ export interface Question {
   correctOptionId: string;
 }
 
+export type StudentQuestion = Omit<Question, "correctOptionId">;
+
+export interface WorkspaceData {
+  user: AppUser;
+  courses: Course[];
+  quizzes: Quiz[];
+  attempts: Attempt[];
+  users: AppUser[];
+}
+
 export type QuizStatus = "draft" | "published" | "closed";
 
 export interface Quiz {
@@ -41,6 +52,7 @@ export interface Quiz {
   startWindow: number; // epoch millis
   endWindow: number; // epoch millis
   status: QuizStatus;
+  allowReview?: boolean;
 }
 
 export interface Answer {

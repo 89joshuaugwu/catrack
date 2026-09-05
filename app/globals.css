@@ -18,6 +18,10 @@
 }
 
 * { box-sizing: border-box; }
+.field { min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--color-border); border-radius: .75rem; background: white; min-width: 0; }
+.action-link { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border-radius: .75rem; background: var(--color-primary); color:white; padding: .65rem 1rem; font-weight:600; font-size:.875rem; }
+a:focus-visible, button:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+label:has(input[type=radio]:focus-visible) { outline: 3px solid #2563eb; outline-offset: 3px; }
 html { scroll-behavior: smooth; }
 body { background: var(--color-bg); color: var(--color-text-primary); font-family: var(--font-body); }
 h1, h2, h3, h4, .font-display { font-family: var(--font-display); }

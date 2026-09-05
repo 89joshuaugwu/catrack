@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { csvText } from "./csv";
 import type { Attempt, Quiz } from "@/types";
 
 /** Student's own CA breakdown: quiz-by-quiz + running total, one course. */
@@ -70,13 +71,8 @@ export function exportQuizResultsCSV(opts: {
   quizTitle: string;
   results: { name: string; email: string; score: number; maxScore: number; lateSubmission?: boolean }[];
 }) {
-  const header = "Name,Email,Score,Max Score,Late Submission\n";
-  const rows = opts.results
-    .map(
-      (r) =>
-        `${r.name},${r.email},${r.score},${r.maxScore},${r.lateSubmission ? "Yes" : "No"}`
-    )
-    .join("\n");
+  const header = "";
+  const rows = csvText([["Name","Email","Score","Max Score","Late Submission"], ...opts.results.map(r => [r.name,r.email,r.score,r.maxScore,r.lateSubmission?"Yes":"No"])]);
 
   const blob = new Blob([header + rows], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
@@ -95,8 +91,9 @@ export function toCASummaryRows(
   return attempts
     .map((a) => {
       const quiz = quizzes.find((q) => q.id === a.quizId);
-      if (!quiz) return null;
+      if (!quiz || quiz.maxScore <= 0 || !Number.isFinite(a.score)) return null;
       return {
+        quizId: quiz.id,
         quizTitle: quiz.title,
         score: a.score,
         maxScore: quiz.maxScore,

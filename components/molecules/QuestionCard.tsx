@@ -1,9 +1,9 @@
 "use client";
 
-import type { Question } from "@/types";
+import type { StudentQuestion } from "@/types";
 
 interface QuestionCardProps {
-  question: Question;
+  question: StudentQuestion;
   index: number;
   total: number;
   selectedOptionId?: string;

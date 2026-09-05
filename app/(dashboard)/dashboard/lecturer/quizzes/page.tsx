@@ -1,13 +1,2 @@
-"use client";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ArrowRight, Plus } from "lucide-react";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import AppShell from "@/components/shells/AppShell";
-import Button from "@/components/ui/Button";
-import Spinner from "@/components/ui/Spinner";
-import { db } from "@/lib/firebase";
-import { useCurrentUser } from "@/lib/client-data";
-import { courseFromDoc, quizFromDoc } from "@/lib/firestore-data";
-import type { Course, Quiz } from "@/types";
-export default function LecturerQuizzesPage(){const {user,loading}=useCurrentUser();const [quizzes,setQuizzes]=useState<Quiz[]>([]);const [courses,setCourses]=useState<Course[]>([]);useEffect(()=>{if(user?.role!=="lecturer")return;Promise.all([getDocs(query(collection(db,"quizzes"),where("createdBy","==",user.uid))),getDocs(query(collection(db,"courses"),where("lecturerId","==",user.uid)))]).then(([q,c])=>{setQuizzes(q.docs.map(quizFromDoc));setCourses(c.docs.map(courseFromDoc));}).catch(console.error);},[user]);if(loading||!user)return <div className="grid min-h-screen place-items-center"><Spinner/></div>;return <AppShell role={user.role} userName={user.displayName}><div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Lecturer workspace</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">Quiz library</h1><p className="mt-2 text-text-secondary">Create, monitor, and review your course assessments.</p></div><Link href="/dashboard/lecturer/quizzes/new"><Button><Plus size={17}/> New quiz</Button></Link></div><section className="surface rounded-2xl p-5 sm:p-6"><div className="mb-4 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Recent assessments</h2><span className="text-xs font-semibold text-text-secondary">{quizzes.length} total</span></div><div className="ledger">{quizzes.map(quiz=>{const course=courses.find(c=>c.id===quiz.courseId);return <Link key={quiz.id} href={`/dashboard/lecturer/quizzes/${quiz.id}/results`} className="ledger-row group flex items-center gap-4 py-4"><div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-sm font-bold text-primary">{course?.code.slice(-3)}</div><div className="min-w-0 flex-1"><p className="text-xs text-text-secondary">{course?.code} · {quiz.durationMinutes} min · {quiz.questions.length} questions</p><p className="mt-0.5 font-semibold group-hover:text-primary">{quiz.title}</p></div><span className="hidden rounded-full bg-lime-50 px-2.5 py-1 text-xs font-bold capitalize text-lime-700 sm:inline">{quiz.status}</span><ArrowRight size={18} className="text-text-secondary group-hover:text-primary"/></Link>;})}</div></section></AppShell>;}
+import WorkspacePage from "@/components/organisms/WorkspacePage";
+export default function Page() { return <WorkspacePage view="library"/>; }

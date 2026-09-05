@@ -6,6 +6,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const user = await requireUser(request, ["student"]);
     const { id } = await params;
     const { answers } = await request.json();
-    return NextResponse.json(await saveOrSubmitAttempt(id, user.uid, answers, true));
+    return NextResponse.json(await saveOrSubmitAttempt(id, user.uid, answers, false));
   } catch (error) { return apiError(error); }
 }

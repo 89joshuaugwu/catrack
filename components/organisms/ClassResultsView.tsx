@@ -1,5 +1,6 @@
 "use client";
 
+import { reportPDF } from "@/lib/report-export";
 import Button from "@/components/ui/Button";
 import { exportQuizResultsCSV } from "@/lib/export";
 
@@ -20,14 +21,14 @@ export default function ClassResultsView({ quizTitle, maxScore, results }: Class
         <p className="text-sm text-text-secondary">
           {results.length} submission{results.length === 1 ? "" : "s"}
         </p>
-        <Button
+        <div className="flex flex-wrap gap-2"><Button variant="secondary" onClick={()=>reportPDF(quizTitle,["Student","Email","Score","Max","Timing"],results.map(r=>[r.name,r.email,r.score,maxScore,r.lateSubmission?"Late":"On time"]))}>Export PDF</Button><Button
           variant="secondary"
           onClick={() =>
             exportQuizResultsCSV({ quizTitle, results: results.map((r) => ({ ...r, maxScore })) })
           }
         >
           Export CSV
-        </Button>
+        </Button></div>
       </div>
 
       <div className="ledger">

@@ -9,12 +9,14 @@ export function computeCAScore(
   quizzes: Pick<Quiz, "id" | "maxScore" | "weight">[],
   caCeiling: number
 ): number {
+  const seen = new Set<string>();
   const total = attempts.reduce((sum, attempt) => {
     const quiz = quizzes.find((q) => q.id === attempt.quizId);
-    if (!quiz || !quiz.maxScore) return sum;
-    const normalized = (attempt.score / quiz.maxScore) * quiz.weight;
+    if (!quiz || !Number.isFinite(quiz.maxScore) || quiz.maxScore <= 0 || !Number.isFinite(attempt.score) || !Number.isFinite(quiz.weight) || quiz.weight < 0 || seen.has(quiz.id)) return sum;
+    seen.add(quiz.id);
+    const normalized = (Math.max(0, Math.min(attempt.score, quiz.maxScore)) / quiz.maxScore) * quiz.weight;
     return sum + normalized;
   }, 0);
 
-  return Math.min(total, caCeiling);
+  return Math.min(total, Math.max(0, caCeiling));
 }
