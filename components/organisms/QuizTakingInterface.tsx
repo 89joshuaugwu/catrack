@@ -28,6 +28,7 @@ export default function QuizTakingInterface({session,uid}:{session:QuizSession;u
   const [submitting,setSubmitting]=useState(false);
   const [error,setError]=useState("");
   const [saveStatus,setSaveStatus]=useState("Answers restored");
+  const [saveRetry,setSaveRetry]=useState(0);
   const [expired,setExpired]=useState(false);
   const clockOffset=useRef(session.serverNow-Date.now());
   const queue=useRef<Promise<unknown>>(Promise.resolve());
@@ -46,7 +47,7 @@ export default function QuizTakingInterface({session,uid}:{session:QuizSession;u
       queue.current.then(()=>setSaveStatus("Answers saved")).catch(()=>setSaveStatus("Not synced. Keep this page open and retry."));
     },400);
     return()=>clearTimeout(timer);
-  },[answers,quiz.id,result,expired,storageKey]);
+  },[answers,quiz.id,result,expired,storageKey,saveRetry]);
   useEffect(()=>{
     if(result)return;
     const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue="";};
@@ -67,6 +68,7 @@ export default function QuizTakingInterface({session,uid}:{session:QuizSession;u
   if(result)return <main className="mx-auto max-w-lg px-5 py-12 text-center"><h1 className="text-2xl font-bold">{quiz.title} — Submitted</h1><ScoreReveal score={result.score} maxScore={result.maxScore}/>{result.lateSubmission&&<p className="mb-5 text-warning">Submitted after the grace period. Only answers previously saved on the server were graded.</p>}{result.review?.length ? <div className="my-5 grid gap-3 text-left">{result.review.map(r=>{const q=quiz.questions.find(q=>q.id===r.questionId)!;return <div key={r.questionId} className="rounded-xl border p-4"><p className="font-semibold">{q.text}</p><p className="text-sm">Your answer: {q.options.find(o=>o.id===answers[q.id])?.text??"Unanswered"}</p><p className="text-sm">Correct answer: {q.options.find(o=>o.id===r.correctOptionId)?.text}</p></div>;})}</div> : quiz.allowReview && <p className="mb-4 text-sm">Answer review becomes available after the quiz window closes. Return to this result then.</p>}<Link className="action-link" href="/dashboard/scores">View CA progress</Link><Link className="ml-4 text-primary" href="/dashboard/quizzes">All quizzes</Link></main>;
   return <QuizShell timerSlot={<QuizTimer startedAt={deadline-quiz.durationMinutes*60000} durationMinutes={quiz.durationMinutes} onExpire={()=>{setExpired(true);void submit();}}/>} progressSlot={<span>{Object.keys(answers).length} of {quiz.questions.length} answered · {saveStatus}</span>}>
     <h1 className="mb-5 text-2xl font-bold">{quiz.title}</h1>
+    {saveStatus.startsWith("Not synced")&&!expired&&<Button className="mb-4" variant="secondary" disabled={submitting} onClick={()=>setSaveRetry(n=>n+1)}>Retry saving answers</Button>}
     {error&&<div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4">{error}<Button className="ml-3" disabled={submitting} onClick={submit}>Retry submission</Button></div>}
     {expired&&<p className="mb-4 font-semibold text-warning">Time is up. Answers are locked while submission completes.</p>}
     <fieldset disabled={submitting||expired}><QuestionCard question={quiz.questions[current]} index={current} total={quiz.questions.length} selectedOptionId={answers[quiz.questions[current].id]} onSelect={optionId=>setAnswers(a=>({...a,[quiz.questions[current].id]:optionId}))}/></fieldset>

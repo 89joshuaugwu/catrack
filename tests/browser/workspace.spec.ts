@@ -81,3 +81,57 @@ test("mobile navigation does not obscure page content",async({page})=>{
   await signIn(page,"admin");
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBeTruthy();
 });
+
+test("PDF and CSV reports download successfully",async({page})=>{
+  const data=await signIn(page,"lecturer");
+  const reportData={...data,attempts:[{uid:"test-student",quizId:"seeded-quiz",status:"submitted",score:1,startedAt:Date.now()-10000,submittedAt:Date.now(),answers:[],lateSubmission:false}]};
+  await page.route("**/api/workspace",r=>r.fulfill({json:reportData}));
+  await page.goto("/dashboard/lecturer/quizzes/seeded-quiz/results");
+  for(const format of ["PDF","CSV"]){
+    const download=page.waitForEvent("download");
+    await page.getByRole("button",{name:"Export "+format,exact:true}).click();
+    const file=await download;
+    expect(file.suggestedFilename()).toMatch(new RegExp("\\."+format.toLowerCase()+"$"));
+    expect(await file.failure()).toBeNull();
+  }
+  await page.goto("/dashboard/lecturer/ca-overview");
+  await expect(page.getByRole("cell",{name:"10.00",exact:true}).first()).toBeVisible();
+  const download=page.waitForEvent("download");
+  await page.getByRole("button",{name:"Export PDF",exact:true}).click();
+  expect(await (await download).failure()).toBeNull();
+});
+
+test("quiz builder saves the complete payload and chosen draft status",async({page})=>{
+  await signIn(page,"lecturer");
+  await page.goto("/dashboard/lecturer/quizzes/new");
+  await page.getByLabel("Quiz title",{exact:true}).fill("New assessment");
+  await page.getByLabel("Opens",{exact:true}).fill("2027-01-01T09:00");
+  await page.getByLabel("Closes",{exact:true}).fill("2027-01-01T10:00");
+  await page.getByLabel("Question 1 text",{exact:true}).fill("Select A");
+  for(const letter of ["A","B","C","D"])
+    await page.getByLabel("Question 1, option "+letter,{exact:true}).fill(letter);
+  const saved=page.waitForRequest(r=>r.url().endsWith("/api/workspace")&&r.method()==="POST");
+  await page.getByRole("button",{name:"Save draft",exact:true}).click();
+  const payload=(await saved).postDataJSON();
+  expect(payload).toMatchObject({action:"saveQuiz",status:"draft",quiz:{title:"New assessment",courseId:"course",maxScore:1}});
+  expect(payload.quiz.questions[0].correctOptionId).toBe(payload.quiz.questions[0].options[0].id);
+  await expect(page).toHaveURL(/lecturer\/quizzes$/);
+});
+
+test("resuming restores saved answer and expiry submits only once",async({page})=>{
+  const data=await signIn(page,"student");
+  let submissions=0;
+  await page.route("**/api/quizzes/seeded-quiz/start",r=>r.fulfill({json:{
+    quiz:data.quizzes[0],startedAt:Date.now()-15*60000+2000,serverNow:Date.now(),
+    durationMinutes:15,answers:[{questionId:"one",selectedOptionId:"a"}],result:null,
+  }}));
+  await page.route("**/api/quizzes/seeded-quiz/submit",r=>{
+    submissions++;
+    return r.fulfill({json:{score:1,maxScore:1,lateSubmission:false}});
+  });
+  await page.getByRole("link",{name:"Review & start"}).click();
+  await page.getByRole("button",{name:"Begin / resume / view result"}).click();
+  await expect(page.getByRole("radio",{name:"First",exact:true})).toBeChecked();
+  await expect(page.getByRole("heading",{name:/Submitted$/})).toBeVisible({timeout:8000});
+  expect(submissions).toBe(1);
+});
