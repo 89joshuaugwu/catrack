@@ -16,6 +16,7 @@ export default function QuizTakingInterface({session,uid}:{session:QuizSession;u
   const [current,setCurrent]=useState(0);
   const [answers,setAnswers]=useState<Record<string,string>>(()=>{
     const saved=Object.fromEntries(session.answers.map(a=>[a.questionId,a.selectedOptionId]));
+    if(session.result)return saved;
     try {
       const local=JSON.parse(localStorage.getItem(storageKey)??"null");
       if(local && typeof local==="object") for(const q of quiz.questions)

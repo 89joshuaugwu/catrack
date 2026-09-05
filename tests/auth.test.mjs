@@ -11,7 +11,7 @@ function authModule(profile={role:"student",displayName:"Student",email:"student
   runInNewContext(code,{exports,console,require:name=>{
     if(name==="next/server")return require(name);
     if(name==="./firebase-admin")return {
-      adminAuth:{verifyIdToken:async(token,revocation)=>{assert.equal(revocation,true);if(token!=="valid")throw new Error("invalid");return {uid:"student"};}},
+      adminAuth:{verifyIdToken:async(token,revocation)=>{assert.equal(revocation,true);if(token!=="valid")throw Object.assign(new Error("invalid"),{code:"auth/invalid-id-token"});return {uid:"student"};}},
       adminDb:{collection:()=>({doc:()=>({get:async()=>({data:()=>profile})})})},
     };
     throw new Error(name);

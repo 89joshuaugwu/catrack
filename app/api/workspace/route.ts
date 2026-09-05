@@ -116,6 +116,7 @@ export async function POST(request: Request) {
           try { validateQuiz(q); } catch(e) { throw new ApiError((e as Error).message); }
           if (q.weight > course.data()!.caCeiling) throw new ApiError("Quiz weight exceeds the course CA ceiling.");
           if (!["draft", "published"].includes(body.status)) throw new ApiError("Invalid quiz status.");
+          if (body.status === "published" && q.endWindow <= Date.now()) throw new ApiError("The published quiz closing time must be in the future.");
           tx.set(ref, { title: q.title.trim(), courseId, createdBy: prior?.createdBy ?? user.uid,
             questions: q.questions.map(question => ({id:question.id, text:question.text.trim(),
               options:question.options.map(o=>({id:o.id,text:o.text.trim()})), correctOptionId:question.correctOptionId})),

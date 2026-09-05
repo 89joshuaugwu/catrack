@@ -79,3 +79,13 @@ test("closing window also limits save time, even if timer has minutes left",asyn
   setNow(1002000);
   await assert.rejects(api.saveOrSubmitAttempt("quiz","student",[],false),/Time is up/);
 });
+test("answer review is withheld until the closing time",async()=>{
+  const {api,quiz,setNow}=setup();
+  quiz.allowReview=true;
+  await api.startQuizAttempt("quiz","student");
+  const result=await api.saveOrSubmitAttempt("quiz","student",[],true);
+  assert.equal(result.review.length,0);
+  setNow(quiz.endWindow+1);
+  const resumed=await api.startQuizAttempt("quiz","student");
+  assert.equal(resumed.result.review[0].correctOptionId,"a");
+});
